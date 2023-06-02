@@ -1,54 +1,150 @@
-import { MarsRover } from "../src/marsRover";
+import { ICommand, IDirection, IPosition, MarsRover } from "../src/marsRover";
 
 describe("MarsRover", () => {
+  const INIT_POSITION: IPosition = {
+    x: 0,
+    y: 0,
+    direction: IDirection.North,
+  };
+
   it("should create a new MarsRover", () => {
-    const marsRover = new MarsRover(0, 0, "N");
+    const marsRover = new MarsRover(INIT_POSITION);
     expect(marsRover).toBeDefined();
   });
 
-  it("shold show MarsRovers position", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    expect(marsRover.position.x).toBe(0);
-    expect(marsRover.position.y).toBe(0);
-  });
-
   it("compare MarsRovers position", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    const equalPositions = marsRover.comparePosition({ x: 0, y: 0 });
+    const marsRover = new MarsRover(INIT_POSITION);
+    const equalPositions = marsRover.comparePosition(INIT_POSITION);
     expect(equalPositions).toBe(true);
   });
 
-  it("should move a MarsRover to East", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    marsRover.move("E", 1);
-    expect(marsRover.position.x).toBe(1);
-    expect(marsRover.position.y).toBe(0);
+  it("should turn left", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    marsRover.move([ICommand.Left]);
+    const newPosition: IPosition = {
+      x: 0,
+      y: 0,
+      direction: IDirection.West,
+    };
+    const equalPositions = marsRover.comparePosition(newPosition);
+    expect(equalPositions).toBe(true);
   });
 
-  it("should move a MarsRover to West", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    marsRover.move("W", 1);
-    expect(marsRover.position.x).toBe(-1);
-    expect(marsRover.position.y).toBe(0);
+  it("should turn right", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    marsRover.move([ICommand.Right]);
+    const newPosition: IPosition = {
+      x: 0,
+      y: 0,
+      direction: IDirection.East,
+    };
+    const equalPositions = marsRover.comparePosition(newPosition);
+    expect(equalPositions).toBe(true);
   });
 
-  it("should move a MarsRover to North", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    marsRover.move("N", 1);
-    expect(marsRover.position.x).toBe(0);
-    expect(marsRover.position.y).toBe(1);
+  it("should move forward", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    marsRover.move([ICommand.Forward]);
+    const newPosition: IPosition = {
+      x: 0,
+      y: 1,
+      direction: IDirection.North,
+    };
+    const equalPositions = marsRover.comparePosition(newPosition);
+    expect(equalPositions).toBe(true);
   });
 
-  it("should move a MarsRover to South", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    marsRover.move("S", 1);
-    expect(marsRover.position.x).toBe(0);
-    expect(marsRover.position.y).toBe(-1);
+  it("should move backward", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    marsRover.move([ICommand.Backward]);
+    const newPosition: IPosition = {
+      x: 0,
+      y: -1,
+      direction: IDirection.North,
+    };
+    const equalPositions = marsRover.comparePosition(newPosition);
+    expect(equalPositions).toBe(true);
+  });
+});
+
+describe("run with commands", () => {
+  const INIT_POSITION: IPosition = {
+    x: 1,
+    y: 1,
+    direction: IDirection.North,
+  };
+  it("run with commands 'fb'", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    marsRover.move([ICommand.Forward, ICommand.Backward]);
+
+    const expectedPosition: IPosition = {
+      x: 1,
+      y: 1,
+      direction: IDirection.North,
+    };
+
+    const equalPositions = marsRover.comparePosition(expectedPosition);
+    expect(equalPositions).toBe(true);
   });
 
-  it("should turn a MarsRover to East", () => {
-    const marsRover = new MarsRover(0, 0, "N");
-    marsRover.turn("R");
-    expect(marsRover.direction).toBe("E");
+  it("run with commands 'lfr'", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    const commands: ICommand[] = [
+      ICommand.Left,
+      ICommand.Forward,
+      ICommand.Right,
+    ];
+    marsRover.move(commands);
+    const expectedPosition: IPosition = {
+      x: 0,
+      y: 1,
+      direction: IDirection.North,
+    };
+    const equalPositions = marsRover.comparePosition(expectedPosition);
+    expect(equalPositions).toBe(true);
+  });
+
+  it("run with commands 'ffrfflfrff'", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    const commands: ICommand[] = [
+      ICommand.Forward,
+      ICommand.Forward,
+      ICommand.Right,
+      ICommand.Forward,
+      ICommand.Forward,
+      ICommand.Left,
+      ICommand.Forward,
+      ICommand.Right,
+      ICommand.Forward,
+      ICommand.Forward,
+    ];
+    marsRover.move(commands);
+    const EXPECTED_POSITION: IPosition = {
+      x: 5,
+      y: 4,
+      direction: IDirection.East,
+    };
+    const equalPositions = marsRover.comparePosition(EXPECTED_POSITION);
+    expect(equalPositions).toBe(true);
+  });
+
+  it("run with commands fbblrr", () => {
+    const marsRover = new MarsRover(INIT_POSITION);
+    const commands: ICommand[] = [
+      ICommand.Forward,
+      ICommand.Backward,
+      ICommand.Backward,
+      ICommand.Left,
+      ICommand.Right,
+      ICommand.Right,
+    ];
+    marsRover.move(commands);
+    const EXPECTED_POSITION: IPosition = {
+      x: 1,
+      y: 0,
+      direction: IDirection.East,
+    };
+    const equalPositions = marsRover.comparePosition(EXPECTED_POSITION);
+    expect(equalPositions).toBe(true);
   });
 });
